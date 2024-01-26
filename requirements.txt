@@ -1,3 +1,6 @@
 # requirements.txt
 qdrant_client
 sentence_transformers
+fastapi
+python-multipart
+uvicorn
