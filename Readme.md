@@ -1,4 +1,4 @@
-# Qdrant Example
+# QuranThon Example
 
 ## Installation
 
