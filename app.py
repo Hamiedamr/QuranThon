@@ -13,29 +13,26 @@ async def lifespan(app: FastAPI):
         ),
     )
     yield
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title="QuranThon")
 
 encoder = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 qdrant = QdrantClient(host="localhost", port=6333)
 
-# Endpoint for uploading documents with authentication
 @app.post("/train")
+
 async def train(
     file: UploadFile = File(...),
 ):
-    # Your training logic here (if any)
+    '''
+    upload json file contains array of objects mainly have description and name attributes
+    '''
     contents = await file.read()
     
-    # Convert the contents to a list of documents
-    uploaded_documents = eval(contents.decode("utf-8"))  # Note: This is just a simple example, ensure security in a production setting
+   
+    uploaded_documents = eval(contents.decode("utf-8"))
     
-    # Update the global documents variable
-    global documents
-    documents = uploaded_documents
-
-    # Recreate and upload the Qdrant collection with the updated documents
     qdrant.recreate_collection(
         collection_name="my_books",
         vectors_config=models.VectorParams(
@@ -50,17 +47,17 @@ async def train(
             models.Record(
                 id=idx, vector=encoder.encode(doc["description"] +' '+ doc['name']).tolist(), payload=doc
             )
-            for idx, doc in enumerate(documents)
+            for idx, doc in enumerate(uploaded_documents)
         ],
     )
 
     return {"message": "Documents uploaded and collection updated successfully"}
 
-# Endpoint for searching text with authentication
 @app.post("/search")
 async def search(
     query: str,
 ):
+    '''write your search query'''
     query_vector = encoder.encode(query).tolist()
     hits = qdrant.search(
         collection_name="my_books",

@@ -9,3 +9,4 @@
 ## Run
 
 - ```uvicorn app:app --reload```
+- open [localhost:8000/docs](localhost:8000/docs)
